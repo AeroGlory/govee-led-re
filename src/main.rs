@@ -23,6 +23,9 @@ async fn main() {
 
     for i in &adapters.peripherals().await.unwrap() {
         dbg!(&i);
+           
     }
+
+    
 
 }
