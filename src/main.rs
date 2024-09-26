@@ -1,7 +1,8 @@
 use tokio::time::{self, Duration};
-use btleplug::{self, api::Peripheral, platform::Manager};
+use btleplug::{self, api::Peripheral as _, platform::{Adapter, Manager}};
 use tokio;
 use btleplug::api::{Central, Manager as _, ScanFilter};
+use btleplug::platform::Peripheral;
 //use btleplug::Result;
 
 #[tokio::main]
@@ -25,7 +26,15 @@ async fn main() {
         dbg!(&i);
     }
 */
-    for p in &adapters.peripherals().await.unwrap() {
+
+let light_strip = find_light(&adapters).await.expect("No lights found");
+
+
+
+}
+
+async fn find_light(adapter: &Adapter) -> Option<Peripheral> {
+    for p in adapter.peripherals().await.unwrap() {
         if p.properties()
             .await
             .unwrap()
@@ -35,13 +44,10 @@ async fn main() {
             .any(|name| name.contains("GBK_H619E_6FAD"))
         {
             //return Some(p) 
-            dbg!(p);
-            let light_strip = p;
+            dbg!(&p);
+            return Some(p)
         }
-        else {
-            panic!("No light found :<")
-        }
-
-
     }
+
+    None
 }
