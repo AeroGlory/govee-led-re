@@ -1,12 +1,19 @@
+use std::io::{self, Write};
 use tokio::time::{self, Duration};
-use btleplug::{self, api::Peripheral as _, platform::{Adapter, Manager}};
+use btleplug::{self, api::{bleuuid::BleUuid, Peripheral as _}, platform::{Adapter, Manager}};
 use tokio;
 use btleplug::api::{Central, Manager as _, ScanFilter};
 use btleplug::platform::Peripheral;
+use uuid::{uuid, Uuid};
 //use btleplug::Result;
 
 #[tokio::main]
 async fn main() {
+
+    let on_command: [u8; 20] = [0x33, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33];
+    let off_command: [u8; 20] = [0x33, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x32];
+
+
     let manager = Manager::new().await.unwrap();
     // get the first bluetooth adapter
     let adapters = manager.adapters()
@@ -25,10 +32,33 @@ async fn main() {
     /*for i in &adapters.peripherals().await.unwrap() {
         dbg!(&i);
     }
-*/
+*/  
+    let _a = &mut Default::default();
+    io::stdin().read_line(_a).expect("Oh well.");
+    io::stdout().flush().unwrap();
 
-let light_strip = find_light(&adapters).await.expect("No lights found");
+    let light_strip = find_light(&adapters).await.expect("No lights found");
 
+    light_strip.connect().await.unwrap();
+
+    light_strip.discover_services().await.unwrap();
+
+    let chars = light_strip.characteristics();
+    let servs = light_strip.services();
+
+    dbg!(&servs);
+    dbg!(&chars);
+
+
+
+    let cmd_char = &chars
+    .iter()
+    .find(|c| c.uuid == uuid!("00010203-0405-0607-0809-0a0b0c0d2b11"))
+    .expect("Unable to find characterics");
+
+    light_strip.write(cmd_char, &on_command,  btleplug::api::WriteType::WithoutResponse).await.expect("Unable to send ON command");
+    time::sleep(Duration::from_secs(5)).await;
+    light_strip.write(cmd_char, &off_command,  btleplug::api::WriteType::WithoutResponse).await.expect("Unable to send ON command");
 
 
 }
