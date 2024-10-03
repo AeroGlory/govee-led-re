@@ -1,3 +1,5 @@
+mod light_cmd;
+
 use std::io::{self, Write};
 use tokio::time::{self, Duration};
 use btleplug::{self, api::{bleuuid::BleUuid, Peripheral as _}, platform::{Adapter, Manager}};
@@ -49,17 +51,20 @@ async fn main() {
     dbg!(&servs);
     dbg!(&chars);
 
-
-
     let cmd_char = &chars
     .iter()
     .find(|c| c.uuid == uuid!("00010203-0405-0607-0809-0a0b0c0d2b11"))
     .expect("Unable to find characterics");
 
-    light_strip.write(cmd_char, &on_command,  btleplug::api::WriteType::WithoutResponse).await.expect("Unable to send ON command");
-    time::sleep(Duration::from_secs(5)).await;
-    light_strip.write(cmd_char, &off_command,  btleplug::api::WriteType::WithoutResponse).await.expect("Unable to send ON command");
 
+//Test loop to turn on/off lights repeatedly
+loop {
+    light_strip.write(cmd_char, &light_cmd::KEEP_ALIVE,  btleplug::api::WriteType::WithoutResponse).await.expect("Unable to send ON command");
+    light_strip.write(cmd_char, &light_cmd::TURN_ON,  btleplug::api::WriteType::WithoutResponse).await.expect("Unable to send ON command");
+    time::sleep(Duration::from_secs(1)).await;
+    light_strip.write(cmd_char, &light_cmd::TURN_OFF,  btleplug::api::WriteType::WithoutResponse).await.expect("Unable to send ON command");
+    time::sleep(Duration::from_secs(1)).await;
+}
 
 }
 
