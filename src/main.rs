@@ -6,16 +6,11 @@ use btleplug::{self, api::{bleuuid::BleUuid, Peripheral as _}, platform::{Adapte
 use tokio;
 use btleplug::api::{Central, Manager as _, ScanFilter};
 use btleplug::platform::Peripheral;
-use uuid::{uuid, Uuid};
+use uuid::uuid;
 //use btleplug::Result;
 
 #[tokio::main]
 async fn main() {
-
-    let on_command: [u8; 20] = [0x33, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33];
-    let off_command: [u8; 20] = [0x33, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x32];
-
-
     let manager = Manager::new().await.unwrap();
     // get the first bluetooth adapter
     let adapters = manager.adapters()
@@ -35,10 +30,15 @@ async fn main() {
         dbg!(&i);
     }
 */  
-    let _a = &mut Default::default();
+   
+   
+   
+   
+   
+   /*  let _a = &mut Default::default();
     io::stdin().read_line(_a).expect("Oh well.");
     io::stdout().flush().unwrap();
-
+*/
     let light_strip = find_light(&adapters).await.expect("No lights found");
 
     light_strip.connect().await.unwrap();
